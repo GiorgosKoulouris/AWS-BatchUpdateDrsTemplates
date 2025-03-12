@@ -29,7 +29,7 @@ python -m pip install boto3 pandas openpyxl
 This will parse the complete source server list and will initialize/create the XLS document. Create a file named *init-xls.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-vi init-xls.py # Create and paste the content
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/init-xls.py
 python init-xls.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
@@ -49,7 +49,7 @@ This action will update the XLS document with all information related with the c
 On the DR Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse-drs-info.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-vi parse-drs-info.py # Create and paste the content
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/parse-drs-info.py
 python parse-drs-info.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
@@ -61,7 +61,7 @@ python parse-drs-info.py --region regionName --workbook-path ./DRS_Templates.xls
 On the Prod Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse-ec2-info.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-vi parse-ec2-info.py # Create and paste the content
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/parse-ec2-info.py
 python parse-ec2-info.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
@@ -79,7 +79,7 @@ This step can be executed on any environment, the only thing needed is the lates
 **NOTE:** This step needs to be executed every time you either execute *parse-drs-info.py* or *parse-ec2-info.py*
 
 ```bash
-vi create-mod-sheets.py # Create and paste the content
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/create-mod-sheets.py
 python create-mod-sheets.py --workbook-path ./DRS_Templates.xlsx
 ```
 
@@ -117,7 +117,7 @@ This step will perform the actual updates on the launch templates and launch con
 On the DR Account/Region, make sure that the latest version of the XLS document is available. Create a file named *modify-launch-templates.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-vi modify-launch-templates.py # Create and paste the content
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/modify-launch-templates.py
 python modify-launch-templates.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
