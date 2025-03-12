@@ -20,7 +20,7 @@ The following process facilitates batch updates of the launch configuration and 
 Initialize a python environment. This is to avoid installing modules on the broader environment.
 
 ```bash
-python -m venv venv
+python3 -m venv venv
 source ./venv/bin/activate
 python -m pip install boto3 pandas openpyxl
 ```

@@ -169,12 +169,13 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         lt_modified = True
 
             if not pd.isnull(new_sg_ids):
-                old_sgs = ltv_data["NetworkInterfaces"][0]["Groups"].sort()
+                old_sgs = ltv_data["NetworkInterfaces"][0]["Groups"]
+                old_sgs.sort()
                 sg_array_tmp = new_sg_ids.split(",")
                 sg_array = []
                 for sg in sg_array_tmp:
                     sg_array.append(sg.strip())
-                sg_array = sg_array.sort()
+                sg_array.sort()
                 if old_sgs != sg_array:
                     ltv_data["NetworkInterfaces"][0]["Groups"] = []
                     for sg_id in sg_array:
