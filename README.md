@@ -10,7 +10,7 @@ The following process facilitates batch updates of the launch configuration and 
 - List all source servers (DR Account/Region)
 - Modify the list of the source servers you want to target (Open and edit the XLS)
 - Parse current DRS launch configuration and templates for the targeted servers (DR Account/Region)
-- Parse all needed information from the respective (replicated) instances (Prod Account/Region)
+- Parse all needed information from the respective (replicated) instances (Prod Account/Region) (optional)
 - Create (or update) the XLS worksheets that hold the data for the modifications
 - Modify the launch configuration and templates (DR Account/Region)
 
@@ -38,7 +38,7 @@ python init-xls.py --region regionName --workbook-path ./DRS_Templates.xlsx
 **NOTE:** If the *--workbook-path* option is omitted, by default, the XLS file will be placed in your working directory and will be named *DRS_Templates.xlsx*
 
 
-### Modify the targeted source servers
+### Modify the targeted source server configurations
 Open the XLS file and edit the list of the servers you want to modify the configuration for. A sheet named *All_Servers* contains the full list of the servers. The sheet *List* is the one you need to modify. Remove any servers you dont want edit/modify during the process. By removing servers, large environments can be separated into smaller batches.
 
 **NOTE:** The script overwrites the XLS document in various steps, keep a backup of the document between executions.
@@ -58,6 +58,9 @@ python parse-drs-info.py --region regionName --workbook-path ./DRS_Templates.xls
 **NOTE:** If the *--workbook-path* option is omitted, the default XLS file path is *./DRS_Templates.xlsx*
 
 ### Parse the information related with the replicated instances
+
+**NOTE:** This step is optional, however executing this and updating the XLS doc is useful to compare PROD and DR configurations side-by-side.
+
 On the Prod Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse-ec2-info.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
