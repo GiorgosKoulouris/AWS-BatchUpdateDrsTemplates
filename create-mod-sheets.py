@@ -44,9 +44,17 @@ def get_excel_data(file_path):
     try:
         list_df = pd.read_excel(file_path, sheet_name="List")
         drs_df = pd.read_excel(file_path, sheet_name="DRS_Details")
-        ec2_df = pd.read_excel(file_path, sheet_name="EC2_Details")
         drs_vols_df = pd.read_excel(file_path, sheet_name="DRS_Vol_Details")
-        ec2_vols_df = pd.read_excel(file_path, sheet_name="EC2_Vol_Details")
+
+        wb = load_workbook(file_path, read_only=True)
+        if "EC2_Details" in wb.sheetnames:
+            ec2_df = pd.read_excel(file_path, sheet_name="Mod_TemplateConfigs")
+        else:
+            ec2_df = pd.DataFrame()
+        if "EC2_Vol_Details" in wb.sheetnames:
+            ec2_vols_df = pd.read_excel(file_path, sheet_name="EC2_Vol_Details")
+        else:
+            ec2_vols_df = pd.DataFrame()
 
         logActions(
             "INF", f"Successfully parsed data from XLS document ({file_path})", None
@@ -101,6 +109,25 @@ def create_comparison_data(
                     "New_SecurityGroupIDs",
                 ].squeeze()
 
+            if ec2_df.empty:
+                ec2_subnet_name = ""
+                ec2_ips = ""
+                ec2_instance_type = ""
+                ec2_sg_names = ""
+            else:
+                ec2_subnet_name = ec2_df.loc[
+                    ec2_df["InstanceID"] == instance_id, "Subnet_Name"
+                ].squeeze()
+                ec2_ips = ec2_df.loc[
+                    ec2_df["InstanceID"] == instance_id, "PrivateIPs"
+                ].squeeze()
+                ec2_instance_type = ec2_df.loc[
+                    ec2_df["InstanceID"] == instance_id, "InstanceType"
+                ].squeeze()
+                ec2_sg_names = ec2_df.loc[
+                    ec2_df["InstanceID"] == instance_id, "SecurityGroupNames"
+                ].squeeze()
+
             gnrl_data.append(
                 {
                     "Hostname": hostname,
@@ -110,9 +137,7 @@ def create_comparison_data(
                         drs_df["OriginInstanceID"] == instance_id, "LaunchState"
                     ].squeeze(),
                     "New_LaunchState": new_launch_state,
-                    "EC2_SubnetName": ec2_df.loc[
-                        ec2_df["InstanceID"] == instance_id, "Subnet_Name"
-                    ].squeeze(),
+                    "EC2_SubnetName": ec2_subnet_name,
                     "DRS_SubnetName": drs_df.loc[
                         drs_df["OriginInstanceID"] == instance_id, "SubnetName"
                     ].squeeze(),
@@ -121,9 +146,7 @@ def create_comparison_data(
                         drs_df["OriginInstanceID"] == instance_id, "CopyPrivateIP"
                     ].squeeze(),
                     "New_CopyPrivateIP": new_copy_pip,
-                    "EC2_PrivateIPs": ec2_df.loc[
-                        ec2_df["InstanceID"] == instance_id, "PrivateIPs"
-                    ].squeeze(),
+                    "EC2_PrivateIPs": ec2_ips,
                     "DRS_PrivateIPs": drs_df.loc[
                         drs_df["OriginInstanceID"] == instance_id, "PrivateIPs"
                     ].squeeze(),
@@ -132,16 +155,12 @@ def create_comparison_data(
                         drs_df["OriginInstanceID"] == instance_id, "Rightsizing"
                     ].squeeze(),
                     "New_RightSizing": new_rightsizing,
-                    "EC2_InstanceType": ec2_df.loc[
-                        ec2_df["InstanceID"] == instance_id, "InstanceType"
-                    ].squeeze(),
+                    "EC2_InstanceType": ec2_instance_type,
                     "DRS_InstanceType": drs_df.loc[
                         drs_df["OriginInstanceID"] == instance_id, "InstanceType"
                     ].squeeze(),
                     "New_InstanceType": new_instance_type,
-                    "EC2_SecurityGroups": ec2_df.loc[
-                        ec2_df["InstanceID"] == instance_id, "SecurityGroupNames"
-                    ].squeeze(),
+                    "EC2_SecurityGroups": ec2_sg_names,
                     "DRS_SecurityGroups": drs_df.loc[
                         drs_df["OriginInstanceID"] == instance_id, "SecurityGroupNames"
                     ].squeeze(),
@@ -151,38 +170,42 @@ def create_comparison_data(
                     "New_SecurityGroupIDs": new_sg_ids,
                 }
             )
-            
-           
+
             drs_vols_filtered_df = drs_vols_df[
                 drs_vols_df["OriginInstanceID"] == instance_id
             ].sort_values(by="Size", ascending=True)
-            ec2_vols_filtered_df = ec2_vols_df[
-                ec2_vols_df["InstanceID"] == instance_id
-            ].sort_values(by="Size", ascending=True)
-            
+            if not ec2_vols_df.empty:
+                ec2_vols_filtered_df = ec2_vols_df[
+                    ec2_vols_df["InstanceID"] == instance_id
+                ].sort_values(by="Size", ascending=True)
+
             if old_vol_df.empty:
                 old_vols_filtered_df = old_vol_df
             else:
                 old_vols_filtered_df = old_vol_df[
                     old_vol_df["OriginInstanceID"] == instance_id
                 ].sort_values(by="DRS_Size", ascending=True)
-            
-            for index, row in drs_vols_filtered_df.iterrows():                   
-                ec2_device_name = ec2_vols_filtered_df["DeviceName"][index]
+
+            for index, row in drs_vols_filtered_df.iterrows():
                 drs_device_name = drs_vols_filtered_df["DeviceName"][index]
-
-                ec2_size = ec2_vols_filtered_df["Size"][index]
                 drs_size = drs_vols_filtered_df["Size"][index]
-
                 drs_type = drs_vols_filtered_df["Type"][index]
-                ec2_type = ec2_vols_filtered_df["Type"][index]
-
                 drs_iops = drs_vols_filtered_df["IOPS"][index]
-                ec2_iops = ec2_vols_filtered_df["IOPS"][index]
-
                 drs_tp = drs_vols_filtered_df["Throughput"][index]
-                ec2_tp = ec2_vols_filtered_df["Throughput"][index]
                 
+                if not ec2_vols_df.empty:
+                    ec2_device_name = ec2_vols_filtered_df["DeviceName"][index]
+                    ec2_size = ec2_vols_filtered_df["Size"][index]
+                    ec2_type = ec2_vols_filtered_df["Type"][index]
+                    ec2_iops = ec2_vols_filtered_df["IOPS"][index]
+                    ec2_tp = ec2_vols_filtered_df["Throughput"][index]
+                else:
+                    ec2_device_name = ""
+                    ec2_size = ""
+                    ec2_type = ""
+                    ec2_iops = ""
+                    ec2_tp = ""
+
                 if old_vols_filtered_df.empty:
                     new_type = ""
                     new_iops = ""

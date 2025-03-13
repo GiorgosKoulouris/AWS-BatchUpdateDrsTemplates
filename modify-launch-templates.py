@@ -91,10 +91,14 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                 vol_dev_name = vol_row["DRS_DeviceName"]
                 new_vols[vol_dev_name] = {
                     "NewType": (
-                        vol_row["New_Type"] if not pd.isnull(vol_row["New_Type"]) else ""
+                        vol_row["New_Type"]
+                        if not pd.isnull(vol_row["New_Type"])
+                        else ""
                     ),
                     "NewIOPS": (
-                        vol_row["New_IOPS"] if not pd.isnull(vol_row["New_IOPS"]) else ""
+                        vol_row["New_IOPS"]
+                        if not pd.isnull(vol_row["New_IOPS"])
+                        else ""
                     ),
                     "NewThroughput": (
                         vol_row["New_Throughput"]
@@ -138,7 +142,7 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         f"Invalid new rightsizing value for {hostname}. Valid options: <NO|BASIC|IN_AWS>"
                     )
                 else:
-                    if new_value.upper() == "NO":
+                    if new_value == "NO":
                         new_value = "NONE"
                     if lc["targetInstanceTypeRightSizingMethod"].upper() != new_value:
                         lc["targetInstanceTypeRightSizingMethod"] = new_value
@@ -151,7 +155,6 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
 
             if not pd.isnull(new_private_ips):
                 if lc["copyPrivateIp"] != "TRUE":
-                    ltv_data["NetworkInterfaces"][0]["PrivateIpAddresses"] = []
                     ip_data = []
                     ips_array = new_private_ips.split(",")
                     ip_index = 0
@@ -164,7 +167,10 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                             {"Primary": is_primary, "PrivateIpAddress": ip.strip()}
                         )
                         ip_index += 1
-                    if ltv_data["NetworkInterfaces"][0]["PrivateIpAddresses"] != ip_data:
+                    if (
+                        ltv_data["NetworkInterfaces"][0]["PrivateIpAddresses"]
+                        != ip_data
+                    ):
                         ltv_data["NetworkInterfaces"][0]["PrivateIpAddresses"] = ip_data
                         lt_modified = True
 
@@ -191,7 +197,10 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
             for ltv_vol in ltv_data["BlockDeviceMappings"]:
                 dev_name = ltv_vol["DeviceName"]
                 if new_vols[dev_name]["NewType"] != "":
-                    if ltv_vol["Ebs"]["VolumeType"].upper() != new_vols[dev_name]["NewType"].upper():
+                    if (
+                        ltv_vol["Ebs"]["VolumeType"].upper()
+                        != new_vols[dev_name]["NewType"].upper()
+                    ):
                         ltv_vol["Ebs"]["VolumeType"] = new_vols[dev_name]["NewType"]
                         lt_modified = True
                 if new_vols[dev_name]["NewIOPS"] != "":
@@ -199,8 +208,13 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         ltv_vol["Ebs"]["Iops"] = int(new_vols[dev_name]["NewIOPS"])
                         lt_modified = True
                 if new_vols[dev_name]["NewThroughput"] != "":
-                    if ltv_vol["Ebs"]["Throughput"] != new_vols[dev_name]["NewThroughput"]:
-                        ltv_vol["Ebs"]["Throughput"] = int(new_vols[dev_name]["NewThroughput"])
+                    if (
+                        ltv_vol["Ebs"]["Throughput"]
+                        != new_vols[dev_name]["NewThroughput"]
+                    ):
+                        ltv_vol["Ebs"]["Throughput"] = int(
+                            new_vols[dev_name]["NewThroughput"]
+                        )
                         lt_modified = True
 
             for tag_spec in ltv_data["TagSpecifications"]:
@@ -216,6 +230,21 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         )
                         lt_modified = True
 
+            # lt_tags = ec2_client.describe_launch_templates(
+            #     LaunchTemplateIds=[template_id]
+            # )["LaunchTemplates"][0]["Tags"]
+            # lt_tag_modified = False
+            # tag_exists = False
+            # for tag in lt_tags:
+            #     if tag["Key"] == "drs_source_server":
+            #         if tag["Value"] != hostname:
+            #             tag["Value"] = hostname
+            #             lt_tag_modified = True
+            #         tag_exists = True
+            # if not tag_exists:
+            #     lt_tags.append({"Key": "drs_source_server", "Value": hostname})
+            #     lt_tag_modified = True
+
             if lt_modified:
                 new_version_response = ec2_client.create_launch_template_version(
                     LaunchTemplateId=template_id, LaunchTemplateData=ltv_data
@@ -226,9 +255,15 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                 response = ec2_client.modify_launch_template(
                     LaunchTemplateId=template_id, DefaultVersion=str(new_version_number)
                 )
-                logActions("INF", f"Updated launch template for {ss_id} ({hostname})", None)
+                logActions(
+                    "INF", f"Updated launch template for {ss_id} ({hostname})", None
+                )
             else:
-                logActions("INF", f"No changes on launch template for {ss_id} ({hostname})", None)
+                logActions(
+                    "INF",
+                    f"No changes on launch template for {ss_id} ({hostname})",
+                    None,
+                )
 
             if lc_modified:
                 response = drs_client.update_launch_configuration(
@@ -239,26 +274,59 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                     ],
                     launchDisposition=lc["launchDisposition"],
                 )
-                logActions("INF", f"Updated launch configuration for {ss_id} ({hostname})", None)
-            else:    
-                logActions("INF", f"No changes on launch configuration for {ss_id} ({hostname})", None)
-    
+                logActions(
+                    "INF",
+                    f"Updated launch configuration for {ss_id} ({hostname})",
+                    None,
+                )
+            else:
+                logActions(
+                    "INF",
+                    f"No changes on launch configuration for {ss_id} ({hostname})",
+                    None,
+                )
+
             if lc_modified or lt_modified:
-                has_any_updates = True           
+                has_any_updates = True
 
         except Exception as e:
             logActions("ERR", f"Failed to update template for {ss_id} ({hostname})", e)
 
     return has_any_updates
 
+
 def fetch_updated_data(file_path, region):
     try:
-        subprocess.run([sys.executable, 'parse-drs-info.py', '--workbook-path', file_path, '--region', region])
-        logActions("INF", f"Successfully stored updated data for DRS on spreadsheet ({file_path})", None)
-        subprocess.run([sys.executable, 'create-mod-sheets.py', '--workbook-path', file_path])
-        logActions("INF", f"Successfully created updated mod sheets on XLS document ({file_path})", None)
+        subprocess.run(
+            [
+                sys.executable,
+                "parse-drs-info.py",
+                "--workbook-path",
+                file_path,
+                "--region",
+                region,
+            ]
+        )
+        logActions(
+            "INF",
+            f"Successfully stored updated data for DRS on spreadsheet ({file_path})",
+            None,
+        )
+        subprocess.run(
+            [sys.executable, "create-mod-sheets.py", "--workbook-path", file_path]
+        )
+        logActions(
+            "INF",
+            f"Successfully created updated mod sheets on XLS document ({file_path})",
+            None,
+        )
     except Exception as e:
-        logActions("ERR", f"Failed to update the XLS document with the updated data ({file_path})", e)
+        logActions(
+            "ERR",
+            f"Failed to update the XLS document with the updated data ({file_path})",
+            e,
+        )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -283,5 +351,3 @@ if __name__ == "__main__":
     if has_any_updates:
         fetch_updated_data(file_path, region)
     logActions("INF", f"Execution finished", None)
-
-
