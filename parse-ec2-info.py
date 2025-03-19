@@ -64,7 +64,7 @@ def get_instance_info(instance_id, ec2_client):
 
     # Extract basic instance details
     instance_type = instance["InstanceType"]
-    platform = instance.get("Platform", "Uknown")  # Default to Linux if not present
+    platform = instance.get("PlatformDetails", "Uknown")
     tags = instance.get("Tags", [])
     instance_name = next(
         (tag["Value"] for tag in tags if tag["Key"] == "Name"), instance_id
