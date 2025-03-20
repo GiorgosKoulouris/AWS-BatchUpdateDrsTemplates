@@ -48,7 +48,7 @@ def get_excel_data(file_path):
 
         wb = load_workbook(file_path, read_only=True)
         if "EC2_Details" in wb.sheetnames:
-            ec2_df = pd.read_excel(file_path, sheet_name="Mod_TemplateConfigs")
+            ec2_df = pd.read_excel(file_path, sheet_name="EC2_Details")
         else:
             ec2_df = pd.DataFrame()
         if "EC2_Vol_Details" in wb.sheetnames:
