@@ -2,6 +2,10 @@
 
 ## Overview
 
+### Code documentation
+
+Detailed documentation of the sctipts' functionality can be found [here](https://giorgoskoulouris.github.io/AWS-BatchUpdateDrsTemplates/)
+
 ### High level info
 The following process facilitates batch updates of the launch configuration and launch templates of DRS servers. Data is stored and validated on an XLS spreadsheet. This is to enable manual edits and data consistency when the scripts are executed on different shells/environments.
 

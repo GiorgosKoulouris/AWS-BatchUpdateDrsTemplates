@@ -335,6 +335,7 @@ def update_workbook(
     """
     
     try:
+        # Convert to DataFrames
         ss_list_df = pd.DataFrame(source_server_list)
         ss_df = pd.DataFrame(drs_details)
         volumes_df = pd.DataFrame(drs_vol_details)
@@ -368,6 +369,7 @@ if __name__ == "__main__":
     region = args.region
     file_path = args.workbook_path
 
+    # Not providing '--workbook-path' option defaults in './DRS_Templates.xlsx'
     if file_path == None:
         file_path = "DRS_Templates.xlsx"
 

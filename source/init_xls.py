@@ -52,7 +52,7 @@ def get_server_list(drs_client):
     """
     
     try:
-        # Fetch source servers
+        # Fetch all source servers
         response = drs_client.describe_source_servers()
         
         # Process each source server and extract the ID and Name tag value

@@ -267,21 +267,7 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         )
                         lt_modified = True
 
-            # lt_tags = ec2_client.describe_launch_templates(
-            #     LaunchTemplateIds=[template_id]
-            # )["LaunchTemplates"][0]["Tags"]
-            # lt_tag_modified = False
-            # tag_exists = False
-            # for tag in lt_tags:
-            #     if tag["Key"] == "drs_source_server":
-            #         if tag["Value"] != hostname:
-            #             tag["Value"] = hostname
-            #             lt_tag_modified = True
-            #         tag_exists = True
-            # if not tag_exists:
-            #     lt_tags.append({"Key": "drs_source_server", "Value": hostname})
-            #     lt_tag_modified = True
-
+            # Modify the launch template only if modifications were found
             if lt_modified:
                 new_version_response = ec2_client.create_launch_template_version(
                     LaunchTemplateId=template_id, LaunchTemplateData=ltv_data
@@ -302,6 +288,7 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                     None,
                 )
 
+            # Modify the launch configuration only if modifications were found
             if lc_modified:
                 response = drs_client.update_launch_configuration(
                     sourceServerID=ss_id,
@@ -387,12 +374,15 @@ if __name__ == "__main__":
     region = args.region
     file_path = args.workbook_path
 
+    # Not providing '--workbook-path' option defaults in './DRS_Templates.xlsx'
     if file_path == None:
         file_path = "DRS_Templates.xlsx"
 
     drs_client, ec2_client = init_aws_clients(region)
     drs_df, mod_df, vol_dfs = get_excel_data(file_path)
     has_any_updates = update_launch_templates(drs_df, mod_df, vol_dfs)
+    
+    # If any launch configuration or launch template was modified, fetch the updated data and update XLS
     if has_any_updates:
         fetch_updated_data(file_path, region)
     logActions("INF", f"Execution finished", None)

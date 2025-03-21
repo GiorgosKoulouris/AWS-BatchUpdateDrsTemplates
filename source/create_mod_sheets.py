@@ -338,6 +338,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     file_path = args.workbook_path
 
+    # Not providing '--workbook-path' option defaults in './DRS_Templates.xlsx'
     if file_path == None:
         file_path = "DRS_Templates.xlsx"
 
