@@ -5,6 +5,16 @@ from openpyxl import load_workbook
 
 
 def logActions(level, short_desc, long_desc):
+    """Formats and prints logs
+
+    :param level: Log level (INF,ERR)
+    :type level: string
+    :param short_desc: Short log message
+    :type short_desc: string
+    :param long_desc: Long log message
+    :type long_desc: string
+    """
+    
     dt_object = datetime.datetime.now()
     dt_string = dt_object.strftime("%m/%d/%Y %H:%M:%S")
     prefix = f"{dt_string} - {level}:"
@@ -14,6 +24,14 @@ def logActions(level, short_desc, long_desc):
 
 
 def get_existing_mod_worksheets(file_path):
+    """Returns data from existing modification worksheets
+
+    :param file_path: path to the XLS doc
+    :type file_path: string
+    :return: Existing data
+    :rtype: list
+    """
+    
     try:
         wb = load_workbook(file_path, read_only=False)
         if "Mod_TemplateConfigs" in wb.sheetnames:
@@ -41,6 +59,13 @@ def get_existing_mod_worksheets(file_path):
 
 
 def get_excel_data(file_path):
+    """Returns data from existing worksheets realted to EC2 and DRS
+
+    :param file_path: path to the XLS doc
+    :type file_path: string
+    :return: list_df, drs_df, ec2_df, drs_vols_df, ec2_vols_df
+    :rtype: list, list, list, list, list
+    """
     try:
         list_df = pd.read_excel(file_path, sheet_name="List")
         drs_df = pd.read_excel(file_path, sheet_name="DRS_Details")
@@ -68,6 +93,26 @@ def get_excel_data(file_path):
 def create_comparison_data(
     list_df, drs_df, ec2_df, drs_vols_df, ec2_vols_df, old_mod_df, old_vol_df
 ):
+    """Generates and returns the data to put into modification worksheets
+
+    :param list_df: List of servers
+    :type list_df: list
+    :param drs_df: DRS data
+    :type drs_df: list
+    :param ec2_df: EC2 data
+    :type ec2_df: list
+    :param drs_vols_df: DRS volume data
+    :type drs_vols_df: list
+    :param ec2_vols_df: EC2 volume data
+    :type ec2_vols_df: list
+    :param old_mod_df: Existing general modification data
+    :type old_mod_df: list
+    :param old_vol_df: Existing volume modification data
+    :type old_vol_df: list
+    :return: gnrl_data, vol_data
+    :rtype: list, list
+    """
+    
     gnrl_data = []
     vol_data = []
 
@@ -250,6 +295,16 @@ def create_comparison_data(
 
 
 def update_workbook(gnrl_data, vol_data, file_path):
+    """Updates the XLS doc with modification related info
+
+    :param gnrl_data: General modification data
+    :type gnrl_data: list
+    :param vol_data: Volume related modification data
+    :type vol_data: list
+    :param file_path: Path to the XLS doc
+    :type file_path: string
+    """
+
     try:
         gnrl_data_df = pd.DataFrame(gnrl_data)
         vol_data_df = pd.DataFrame(vol_data)

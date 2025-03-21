@@ -23,10 +23,8 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
       - name: Sync Repo to S3
         run: |
-          aws s3 sync . s3://${{ vars.S3_BUCKET }}/${{ github.event.repository.name }} \
+          aws s3 sync source/ s3://${{ vars.S3_BUCKET }}/${{ github.event.repository.name }} \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*" \
-            --exclude "ignored/*" \
-            --exclude "venv/*" \
             --acl public-read

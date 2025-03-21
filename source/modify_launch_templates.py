@@ -7,6 +7,16 @@ import sys
 
 
 def logActions(level, short_desc, long_desc):
+    """Formats and prints logs
+
+    :param level: Log level (INF,ERR)
+    :type level: string
+    :param short_desc: Short log message
+    :type short_desc: string
+    :param long_desc: Long log message
+    :type long_desc: string
+    """
+    
     dt_object = datetime.datetime.now()
     dt_string = dt_object.strftime("%m/%d/%Y %H:%M:%S")
     prefix = f"{dt_string} - {level}:"
@@ -16,6 +26,14 @@ def logActions(level, short_desc, long_desc):
 
 
 def init_aws_clients(region):
+    """Initializes EC2 and DRS boto clients
+
+    :param region: AWS Region
+    :type region: string
+    :return: DRS client, EC2 client
+    :rtype: boto_client, boto_client
+    """
+    
     try:
         if region == None:
             drs_client = boto3.client("drs")
@@ -32,6 +50,13 @@ def init_aws_clients(region):
 
 
 def get_excel_data(file_path):
+    """Reads data from XLS and returns the respective lists
+
+    :param file_path: Path to the XLS doc
+    :type file_path: string
+    :return: drs_df, mod_df, vol_dfs
+    :rtype: list, list, list
+    """
     try:
         drs_df = pd.read_excel(file_path, sheet_name="DRS_Details")
         mod_df = pd.read_excel(file_path, sheet_name="Mod_TemplateConfigs")
@@ -46,6 +71,18 @@ def get_excel_data(file_path):
 
 
 def update_launch_templates(drs_df, mod_df, vol_dfs):
+    """Makes the modification of the launch templates
+
+    :param drs_df: DRS related data
+    :type drs_df: list
+    :param mod_df: Modification related data
+    :type mod_df: list
+    :param vol_dfs: Volume related data
+    :type vol_dfs: list
+    :return: True if any update occured, False if otherwise
+    :rtype: boolean
+    """
+    
     has_any_updates = False
     for index, row in drs_df.iterrows():
         try:
@@ -296,11 +333,19 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
 
 
 def fetch_updated_data(file_path, region):
+    """Retrieves updated DRS data and re-populates the data on the XLS doc
+
+    :param file_path: Path to the XLS doc
+    :type file_path: string
+    :param region: AWS region
+    :type region: string
+    """
+    
     try:
         subprocess.run(
             [
                 sys.executable,
-                "parse-drs-info.py",
+                "parse_drs_info.py",
                 "--workbook-path",
                 file_path,
                 "--region",

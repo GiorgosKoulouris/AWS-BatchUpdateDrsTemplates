@@ -26,11 +26,11 @@ python -m pip install boto3 pandas openpyxl
 ```
 
 ### Get the complete source server list
-This will parse the complete source server list and will initialize/create the XLS document. Create a file named *init-xls.py* and paste the content of the corresponding file. Then execute the script.
+This will parse the complete source server list and will initialize/create the XLS document. Create a file named *init_xls.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/init-xls.py
-python init-xls.py --region regionName --workbook-path ./DRS_Templates.xlsx
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/init_xls.py
+python init_xls.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
 **NOTE:** If you execute this on CloudShell while being on the DR region, the *--region* option can be omitted.
@@ -46,11 +46,11 @@ Open the XLS file and edit the list of the servers you want to modify the config
 ### Parse the current DRS configuration
 This action will update the XLS document with all information related with the configuration of the source servers.
 
-On the DR Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse-drs-info.py* and paste the content of the corresponding file. Then execute the script.
+On the DR Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse_drs_info.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/parse-drs-info.py
-python parse-drs-info.py --region regionName --workbook-path ./DRS_Templates.xlsx
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/parse_drs_info.py
+python parse_drs_info.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
 **NOTE:** If you execute this on CloudShell while being on the DR region, the *--region* option can be omitted.
@@ -61,11 +61,11 @@ python parse-drs-info.py --region regionName --workbook-path ./DRS_Templates.xls
 
 **NOTE:** This step is optional, however executing this and updating the XLS doc is useful to compare PROD and DR configurations side-by-side.
 
-On the Prod Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse-ec2-info.py* and paste the content of the corresponding file. Then execute the script.
+On the Prod Account/Region, make sure that the latest version of the XLS document is available. Create a file named *parse_ec2_info.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/parse-ec2-info.py
-python parse-ec2-info.py --region regionName --workbook-path ./DRS_Templates.xlsx
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/parse_ec2_info.py
+python parse_ec2_info.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
 This action will update the XLS document with all information related the configuration of actual replicated EC2 instances.
@@ -77,13 +77,13 @@ This action will update the XLS document with all information related the config
 ### Create (or update) the modification XLS worksheets
 This action will create the necessary sheets that contain side-by-side information regarding the configuration of the replicated EC2 instances and the DRS servers.
 
-This step can be executed on any environment, the only thing needed is the latest XLS document version. Create a file named *create-mod-sheets.py* and paste the content of the corresponding file. Then execute the script.
+This step can be executed on any environment, the only thing needed is the latest XLS document version. Create a file named *create_mod_sheets.py* and paste the content of the corresponding file. Then execute the script.
 
-**NOTE:** This step needs to be executed every time you either execute *parse-drs-info.py* or *parse-ec2-info.py*
+**NOTE:** This step needs to be executed every time you either execute *parse_drs_info.py* or *parse_ec2_info.py*
 
 ```bash
-wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/create-mod-sheets.py
-python create-mod-sheets.py --workbook-path ./DRS_Templates.xlsx
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/create_mod_sheets.py
+python create_mod_sheets.py --workbook-path ./DRS_Templates.xlsx
 ```
 
 **NOTE:** If the *--workbook-path* option is omitted, the default XLS file path is *./DRS_Templates.xlsx*
@@ -117,11 +117,11 @@ For each option you need to modify, enter the respective value on the cell under
 ### Perform the actual modification
 This step will perform the actual updates on the launch templates and launch configuration for each source server.
 
-On the DR Account/Region, make sure that the latest version of the XLS document is available. Create a file named *modify-launch-templates.py* and paste the content of the corresponding file. Then execute the script.
+On the DR Account/Region, make sure that the latest version of the XLS document is available. Create a file named *modify_launch_templates.py* and paste the content of the corresponding file. Then execute the script.
 
 ```bash
-wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/modify-launch-templates.py
-python modify-launch-templates.py --region regionName --workbook-path ./DRS_Templates.xlsx
+wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsTemplates/modify_launch_templates.py
+python modify_launch_templates.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
 #### Execution details

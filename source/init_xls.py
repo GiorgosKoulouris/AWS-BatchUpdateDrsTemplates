@@ -4,6 +4,16 @@ import argparse
 import datetime
 
 def logActions(level, short_desc, long_desc):
+    """Formats and prints logs
+
+    :param level: Log level (INF,ERR)
+    :type level: string
+    :param short_desc: Short log message
+    :type short_desc: string
+    :param long_desc: Long log message
+    :type long_desc: string
+    """
+
     dt_object = datetime.datetime.now()
     dt_string = dt_object.strftime("%m/%d/%Y %H:%M:%S")
     prefix = f"{dt_string} - {level}:"
@@ -12,6 +22,14 @@ def logActions(level, short_desc, long_desc):
         print(f"{prefix} {long_desc}")
 
 def init_aws_client(region):
+    """Initializes DRS boto client
+
+    :param region: AWS Region
+    :type region: string
+    :return: DRS client
+    :rtype: boto_client
+    """
+    
     try:
         if region == None:
             drs_client = boto3.client("drs")
@@ -25,6 +43,14 @@ def init_aws_client(region):
         exit(1)
 
 def get_server_list(drs_client):
+    """Returns the full list of the source servers
+
+    :param drs_client: Boto DRS client
+    :type drs_client: boto_client
+    :return: list of dicts with all DRS source servers
+    :rtype: list
+    """
+    
     try:
         # Fetch source servers
         response = drs_client.describe_source_servers()
@@ -53,6 +79,14 @@ def get_server_list(drs_client):
 def update_workbook(
     server_list, file_path
 ):
+    """Updates the XLS document
+
+    :param server_list: list of the source servers
+    :type server_list: list
+    :param file_path: path to the XLS doc
+    :type file_path: string
+    """
+    
     try:
         ss_list_df = pd.DataFrame(server_list)
         with pd.ExcelWriter(
@@ -80,6 +114,7 @@ if __name__ == "__main__":
     region = args.region
     file_path = args.workbook_path
 
+    # Not setting '--workbook-path' defaults to 'DRS_Templates.xlsx'
     if file_path == None:
         file_path = "DRS_Templates.xlsx"
 

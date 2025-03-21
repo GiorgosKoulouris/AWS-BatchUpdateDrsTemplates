@@ -3,3 +3,5 @@
 *.xls
 ignored/
 venv/
+docs/
+*__pycache__/

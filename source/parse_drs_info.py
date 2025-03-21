@@ -5,6 +5,16 @@ import datetime
 
 
 def logActions(level, short_desc, long_desc):
+    """Formats and prints logs
+
+    :param level: Log level (INF,ERR)
+    :type level: string
+    :param short_desc: Short log message
+    :type short_desc: string
+    :param long_desc: Long log message
+    :type long_desc: string
+    """
+    
     dt_object = datetime.datetime.now()
     dt_string = dt_object.strftime("%m/%d/%Y %H:%M:%S")
     prefix = f"{dt_string} - {level}:"
@@ -14,6 +24,14 @@ def logActions(level, short_desc, long_desc):
 
 
 def init_aws_clients(region):
+    """Initializes EC2 boto clients
+
+    :param region: AWS Region
+    :type region: string
+    :return: DRS client, EC2 client
+    :rtype: boto_client, boto_client
+    """
+    
     try:
         if region == None:
             drs_client = boto3.client("drs")
@@ -30,6 +48,14 @@ def init_aws_clients(region):
 
 
 def read_excel(file_path):
+    """Reads the source server list from the XLS doc and returns a list
+
+    :param file_path: path to the XLS doc
+    :type file_path: string
+    :return: Source server list
+    :rtype: list
+    """
+    
     try:
         df = pd.read_excel(file_path, sheet_name="List")
         logActions("INF", f"Successfully parsed XLS document ({file_path})", None)
@@ -40,6 +66,18 @@ def read_excel(file_path):
 
 
 def get_drs_details(df, drs_client, ec2_client):
+    """Returns all info related to DRS source servers
+
+    :param df: Source server list
+    :type df: list
+    :param drs_client: DRS boto client
+    :type drs_client: boto_client
+    :param ec2_client: EC2 boto client
+    :type ec2_client: boto_client
+    :return: ss_list, ss_total_info, volumes, security_rules
+    :rtype: list, list, list, list
+    """
+    
     ss_list = []
     ss_total_info = []
     volumes = []
@@ -282,6 +320,20 @@ def get_drs_details(df, drs_client, ec2_client):
 def update_workbook(
     source_server_list, drs_details, drs_vol_details, drs_sg_details, file_path
 ):
+    """Updates the XLS doc with DRS related info
+
+    :param source_server_list: Source server list
+    :type source_server_list: list
+    :param drs_details: DRS data
+    :type drs_details: list
+    :param drs_vol_details: Volume data
+    :type drs_vol_details: list
+    :param drs_sg_details: Security Group data
+    :type drs_sg_details: list
+    :param file_path: Path to the XLS doc
+    :type file_path: string
+    """
+    
     try:
         ss_list_df = pd.DataFrame(source_server_list)
         ss_df = pd.DataFrame(drs_details)

@@ -5,6 +5,16 @@ import datetime
 
 
 def logActions(level, short_desc, long_desc):
+    """Formats and prints logs
+
+    :param level: Log level (INF,ERR)
+    :type level: string
+    :param short_desc: Short log message
+    :type short_desc: string
+    :param long_desc: Long log message
+    :type long_desc: string
+    """
+
     dt_object = datetime.datetime.now()
     dt_string = dt_object.strftime("%m/%d/%Y %H:%M:%S")
     prefix = f"{dt_string} - {level}:"
@@ -14,6 +24,14 @@ def logActions(level, short_desc, long_desc):
 
 
 def init_aws_clients(region):
+    """Initializes EC2 boto client
+
+    :param region: AWS Region
+    :type region: string
+    :return: EC2 client
+    :rtype: boto_client
+    """
+
     try:
         if region == None:
             ec2_client = boto3.client("ec2")
@@ -28,6 +46,14 @@ def init_aws_clients(region):
 
 
 def read_excel(file_path):
+    """Reads the source server list from the XLS doc and returns a list
+
+    :param file_path: path to the XLS doc
+    :type file_path: string
+    :return: Source server list
+    :rtype: list
+    """
+
     try:
         df = pd.read_excel(file_path, sheet_name="List")
         logActions("INF", f"Successfully parsed XLS document ({file_path})", None)
@@ -38,8 +64,17 @@ def read_excel(file_path):
 
 
 def get_vpc_name(vpc_id, ec2_client):
+    """Returns VPC Name
+
+    :param vpc_id: VPC ID
+    :type vpc_id: string
+    :param ec2_client: EC2 Boto client
+    :type ec2_client: boto_client
+    :return: VPC Name
+    :rtype: string
+    """
+
     try:
-        """Retrieve the VPC name from its tags."""
         response = ec2_client.describe_vpcs(VpcIds=[vpc_id])
         tags = response["Vpcs"][0].get("Tags", [])
         return next((tag["Value"] for tag in tags if tag["Key"] == "Name"), vpc_id)
@@ -48,8 +83,17 @@ def get_vpc_name(vpc_id, ec2_client):
 
 
 def get_subnet_name(subnet_id, ec2_client):
+    """Returns Subnet Name
+
+    :param subnet_id: Subnet ID
+    :type subnet_id: string
+    :param ec2_client: EC2 Boto client
+    :type ec2_client: boto_client
+    :return: Subnet Name
+    :rtype: string
+    """
+
     try:
-        """Retrieve the Subnet name from its tags."""
         response = ec2_client.describe_subnets(SubnetIds=[subnet_id])
         tags = response["Subnets"][0].get("Tags", [])
         return next((tag["Value"] for tag in tags if tag["Key"] == "Name"), subnet_id)
@@ -58,7 +102,16 @@ def get_subnet_name(subnet_id, ec2_client):
 
 
 def get_instance_info(instance_id, ec2_client):
-    """Retrieve EC2 instance details including VPC, subnet, security rules, volume details, and tags."""
+    """Returns all info related to an EC2 instance
+
+    :param instance_id: Instance ID
+    :type instance_id: string
+    :param ec2_client: EC2 Boto client
+    :type ec2_client: boto_client
+    :return: instance_info, security_rules, volumes, instance_tags
+    :rtype: list, list, list, list
+    """
+
     response = ec2_client.describe_instances(InstanceIds=[instance_id])
     instance = response["Reservations"][0]["Instances"][0]
 
@@ -282,6 +335,16 @@ def get_instance_info(instance_id, ec2_client):
 
 
 def get_ec2_details(list_df, ec2_client):
+    """Returns the complete detail lists
+
+    :param list_df: Instance List
+    :type list_df: pd dataframe
+    :param ec2_client: Boto EC2 client
+    :type ec2_client: boto_client
+    :return: instance_data, security_rules_data, volume_data, instance_tags_data
+    :rtype: list, list, list, list
+    """
+    
     instance_data = []
     security_rules_data = []
     volume_data = []
@@ -305,6 +368,20 @@ def get_ec2_details(list_df, ec2_client):
 def update_workbook(
     instance_data, security_rules_data, volume_data, instance_tags_data, file_path
 ):
+    """Updates the XLS doc with EC2 related info
+
+    :param instance_data: Instance data
+    :type instance_data: list
+    :param security_rules_data: Security Group data
+    :type security_rules_data: list
+    :param volume_data: Volume data
+    :type volume_data: list
+    :param instance_tags_data: Instance tags data
+    :type instance_tags_data: list
+    :param file_path: Path to the XLS doc
+    :type file_path: string
+    """
+    
     try:
         # Convert to DataFrames
         instance_df = pd.DataFrame(instance_data)
