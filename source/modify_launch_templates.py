@@ -345,7 +345,7 @@ def fetch_updated_data(file_path, region):
             None,
         )
         subprocess.run(
-            [sys.executable, "create-mod-sheets.py", "--workbook-path", file_path]
+            [sys.executable, "create_mod_sheets.py", "--workbook-path", file_path]
         )
         logActions(
             "INF",

@@ -119,13 +119,15 @@ def get_drs_details(df, drs_client, ec2_client):
                 sg = ec2_client.describe_security_groups(GroupIds=[sg_id])
                 sg_tags = sg["SecurityGroups"][0].get("Tags", [])
                 sg_name = next(
-                    (tag["Value"] for tag in sg_tags if tag["Key"] == "Name"), sg_tags
+                    (tag["Value"] for tag in sg_tags if tag["Key"] == "Name"), sg_id
                 )
+                    
                 sg_names.append(sg_name)
+
             private_ips = [
                 addr["PrivateIpAddress"]
-                for nic in lt_data["NetworkInterfaces"]
-                for addr in nic["PrivateIpAddresses"]
+                for nic in lt_data.get("NetworkInterfaces", [])
+                for addr in nic.get("PrivateIpAddresses", [])
             ]
 
             ss_info = {
@@ -145,6 +147,7 @@ def get_drs_details(df, drs_client, ec2_client):
                 "SecurityGroupIDs": ", ".join(sg_ids),
                 "SecurityGroupNames": ", ".join(sg_names),
             }
+            
             ss_total_info.append(ss_info)
 
             for vol in lt_data["BlockDeviceMappings"]:
