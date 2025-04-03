@@ -33,10 +33,7 @@ def init_aws_clients(region):
     """
 
     try:
-        if region == None:
-            ec2_client = boto3.client("ec2")
-        else:
-            ec2_client = boto3.client("ec2", region_name=region)
+        ec2_client = boto3.client("ec2", region_name=region)
 
         logActions("INF", "Successfully created AWS clients", None)
         return ec2_client
@@ -407,7 +404,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
-        "--region", type=str, required=False, help="Name of the Prod Region"
+        "--region", type=str, required=True, help="Name of the Prod Region"
     )
     parser.add_argument(
         "--workbook-path", type=str, required=False, help="Path to the XLSX file"
