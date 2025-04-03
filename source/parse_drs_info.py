@@ -317,7 +317,7 @@ def get_drs_details(df, drs_client, ec2_client):
 
 
 def update_workbook(
-    source_server_list, drs_details, drs_vol_details, drs_sg_details, file_path
+    source_server_list, drs_details, drs_vol_details, drs_sg_details, file_path, additional_exec
 ):
     """Updates the XLS doc with DRS related info
 
@@ -331,6 +331,8 @@ def update_workbook(
     :type drs_sg_details: list
     :param file_path: Path to the XLS doc
     :type file_path: string
+    :param additional_exec: If it is the initial DRS parsing step
+    :type additional_exec: bool
     """
     
     try:
@@ -348,6 +350,10 @@ def update_workbook(
             ss_df.to_excel(writer, sheet_name="DRS_Details", index=False)
             volumes_df.to_excel(writer, sheet_name="DRS_Vol_Details", index=False)
             rules_df.to_excel(writer, sheet_name="DRS_SG_Details", index=False)
+            
+            if not additional_exec:
+                ss_df.to_excel(writer, sheet_name="Initial_DRS_Details", index=False)
+                volumes_df.to_excel(writer, sheet_name="Initial_DRS_Vol_Details", index=False)
 
         logActions("INF", f"Successfully updated XLS document ({file_path})", None)
     except Exception as e:
@@ -363,10 +369,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--workbook-path", type=str, required=False, help="Path to the XLSX file"
     )
+    parser.add_argument(
+        "--additional-exec", action="store_true", help="Flags the initial execution in order to create the respective sheets"
+    )
     # Parse the arguments
     args = parser.parse_args()
     region = args.region
     file_path = args.workbook_path
+    additional_exec = args.additional_exec
 
     # Not providing '--workbook-path' option defaults in './DRS_Templates.xlsx'
     if file_path == None:
@@ -378,6 +388,6 @@ if __name__ == "__main__":
         list_df, drs_client, ec2_client
     )
     update_workbook(
-        source_server_list, drs_details, drs_vol_details, drs_sg_details, file_path
+        source_server_list, drs_details, drs_vol_details, drs_sg_details, file_path, additional_exec
     )
     logActions("INF", f"Execution finished", None)

@@ -333,6 +333,7 @@ def fetch_updated_data(file_path, region):
                 file_path,
                 "--region",
                 region,
+                "--additional-exec"
             ]
         )
         logActions(
@@ -355,6 +356,77 @@ def fetch_updated_data(file_path, region):
             e,
         )
 
+def create_prepost_sheets(file_path):
+    """Creates or updates the sheets that contain the comparison data between initial and current state of DRS configs
+
+    :param file_path: Path to the XLS doc
+    :type file_path: string
+    """
+    
+    try:
+        init_drs_df = pd.read_excel(file_path, sheet_name="Initial_DRS_Details")
+        init_vol_df = pd.read_excel(file_path, sheet_name="Initial_DRS_Vol_Details")
+        latest_drs_df = pd.read_excel(file_path, sheet_name="DRS_Details")
+        latest_vol_df = pd.read_excel(file_path, sheet_name="DRS_Vol_Details")
+        
+        drs_diff = []
+        for index, init_row in init_drs_df.iterrows():
+            item = {
+                'SourceServerName': init_row['SourceServerName'],
+                'OriginInstanceID': init_row['OriginInstanceID'],
+                'SourceServerID': init_row['SourceServerID'],
+                'Init_TemplateID': init_row['TemplateID'],
+                'New_TemplateID': latest_drs_df['TemplateID'][index],
+                'Init_TemplateVersion': init_row['TemplateVersion'],
+                'New_TemplateVersion': latest_drs_df['TemplateVersion'][index],
+                'Init_LaunchState': init_row['LaunchState'],
+                'New_LaunchState': latest_drs_df['LaunchState'][index],
+                'Init_CopyPrivateIP': init_row['CopyPrivateIP'],
+                'New_CopyPrivateIP': latest_drs_df['CopyPrivateIP'][index],
+                'Init_Rightsizing': init_row['Rightsizing'],
+                'New_Rightsizing': latest_drs_df['Rightsizing'][index],
+                'Init_InstanceType': init_row['InstanceType'],
+                'New_InstanceType': latest_drs_df['InstanceType'][index],
+                'Init_SubnetName': init_row['SubnetName'],
+                'New_SubnetName': latest_drs_df['SubnetName'][index],
+                'Init_PrivateIPs': init_row['PrivateIPs'],
+                'New_PrivateIPs': latest_drs_df['PrivateIPs'][index],
+                'Init_SecurityGroupNames': init_row['SecurityGroupNames'],
+                'New_SecurityGroupNames': latest_drs_df['SecurityGroupNames'][index]
+            }
+            drs_diff.append(item)
+        
+        drs_vol_diff = []
+        for index, init_row in init_vol_df.iterrows():
+            item = {
+                'Hostname': init_row['Hostname'],
+                'OriginInstanceID': init_row['OriginInstanceID'],
+                'DeviceName': init_row['DeviceName'],
+                'Init_Type': init_row['Type'],
+                'New_Type': latest_vol_df['Type'][index],
+                'Init_Size': init_row['Size'],
+                'New_Size': latest_vol_df['Size'][index],
+                'Init_IOPS': init_row['IOPS'],
+                'New_IOPS': latest_vol_df['IOPS'][index],
+                'Init_Throughput': init_row['Throughput'],
+                'New_Throughput': latest_vol_df['Throughput'][index]
+            }
+            drs_vol_diff.append(item)
+            
+        drs_diff_df = pd.DataFrame(drs_diff)
+        drs_vol_diff_df = pd.DataFrame(drs_vol_diff)
+        with pd.ExcelWriter(
+            file_path, engine="openpyxl", mode="a", if_sheet_exists="replace"
+        ) as writer:
+            drs_diff_df.to_excel(writer, sheet_name="DRS_Diff", index=False)
+            drs_vol_diff_df.to_excel(writer, sheet_name="DRS_Volume_Diff", index=False)
+            
+    except Exception as e:
+        logActions(
+            "ERR",
+            f"Failed to update the XLS document with the DRS comparison data ({file_path})",
+            e,
+        ) 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -381,4 +453,5 @@ if __name__ == "__main__":
     # If any launch configuration or launch template was modified, fetch the updated data and update XLS
     if has_any_updates:
         fetch_updated_data(file_path, region)
+        create_prepost_sheets(file_path)
     logActions("INF", f"Execution finished", None)

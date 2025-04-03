@@ -124,6 +124,8 @@ wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsT
 python modify_launch_templates.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
+**NOTE:** If the *--workbook-path* option is omitted, the default XLS file path is *./DRS_Templates.xlsx*
+
 #### Execution details
 - Checks for any changes between the current and the target config
 - Modifies the target object as per the found changes (launch configuration and launch template)
@@ -132,3 +134,23 @@ python modify_launch_templates.py --region regionName --workbook-path ./DRS_Temp
 - If the launch configuration was modified, an update will be submitted for the source server
 - If the launch template was modified, a new version of the template will be created and will become the default one
 - If even one of the source servers had its launch configuration or launch template modified, the script parses the updated data from DRS again and recreates the modification sheets in the XLS documented. Custom values on the *New_OptionName* collumns are not overwritten. If the original modification was successful, a subsequent execution of the script should bring no more changes.
+
+## Worksheet details
+This is a short description of each sheet created by the scripts.
+
+- **All_Servers**: Contains all source servers that are configured for DRS 
+- **List**: The list of the servers you want to modify the DRS configuration for. After running *init_xls.py*, remove any lines for the servers you don't want to reconfigure
+- **DRS_Details**: Contains all information related to DRS configuration. Gets updated when *parse_drs_info.py* is executed, or when DRS configuration gets modified
+- **DRS_Vol_Details**: Contains all information related to DRS volume configuration on the launch templates. Gets updated when *parse_drs_info.py* is executed, or when DRS configuration gets modified
+- **DRS_SG_Details**: Contains all information related to DRS Security Group configuration on the launch templates. Gets updated when *parse_drs_info.py* is executed, or when DRS configuration gets modified
+- **Initial_DRS_Details**: Contains initial information related to DRS configuration. Gets updated only when *parse_drs_info.py* is executed. This is to have a reference of the configuration before applying any modifications
+- **Initial_DRS_Vol_Details**: Contains initial information related to DRS volume configuration on the launch templates. Gets updated only when *parse_drs_info.py* is executed. This is to have a reference of the configuration before applying any modifications
+- **EC2_Details**: Contains all information related to the configuration of the live EC2 instances. Gets updated when *parse_ec2_info.py* is executed
+- **EC2_SG_Details**: Contains all information related to the configuration of the Security Groups of the live EC2 instances. Gets updated when *parse_ec2_info.py* is executed
+- **EC2_Vol_Details**: Contains all information related to the volumes of the live EC2 instances. Gets updated when *parse_ec2_info.py* is executed
+- **EC2_Tag_Details**: Contains all information related to the tags of the live EC2 instances. Gets updated when *parse_ec2_info.py* is executed
+- **Mod_TemplateConfigs**: Contains a comparison between Prod and DR information. Also contains the modifications that will be applied when *modify_launch_templates.py* will be executed.
+- **Mod_VolumeConfigs**: Contains a comparison between Prod and DR volume information. Also contains the volume-related modifications that will be applied when *modify_launch_templates.py* will be executed.
+Mod_VolumeConfigs
+- **DRS_Diff**: Contains side by side info about the initial DRS configuration (before any modifications) and the latest state. Gets updated when *modify_launch_templates.py* is executed
+- **DRS_Volume_Diff**: Contains side by side info about the initial DRS volume configuration (before any modifications) and the latest state. Gets updated when *modify_launch_templates.py* is executed
