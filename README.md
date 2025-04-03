@@ -39,8 +39,6 @@ wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsT
 python init_xls.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
-**NOTE:** If you execute this on CloudShell while being on the DR region, the *--region* option can be omitted.
-
 **NOTE:** If the *--workbook-path* option is omitted, by default, the XLS file will be placed in your working directory and will be named *DRS_Templates.xlsx*
 
 
@@ -59,8 +57,6 @@ wget https://tcop-github-repos.s3.eu-central-1.amazonaws.com/AWS-BatchUpdateDrsT
 python parse_drs_info.py --region regionName --workbook-path ./DRS_Templates.xlsx
 ```
 
-**NOTE:** If you execute this on CloudShell while being on the DR region, the *--region* option can be omitted.
-
 **NOTE:** If the *--workbook-path* option is omitted, the default XLS file path is *./DRS_Templates.xlsx*
 
 ### Parse the information related with the replicated instances
@@ -75,8 +71,6 @@ python parse_ec2_info.py --region regionName --workbook-path ./DRS_Templates.xls
 ```
 
 This action will update the XLS document with all information related the configuration of actual replicated EC2 instances.
-
-**NOTE:** If you execute this on CloudShell while being on the Prod region, the *--region* option can be omitted.
 
 **NOTE:** If the *--workbook-path* option is omitted, the default XLS file path is *./DRS_Templates.xlsx*
 
