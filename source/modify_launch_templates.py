@@ -182,7 +182,7 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         lc_modified = True
 
             if not pd.isnull(new_subnet_id):
-                if ltv_data["NetworkInterfaces"][0]["SubnetId"] != new_subnet_id:
+                if ltv_data["NetworkInterfaces"][0].get("SubnetId", '') != new_subnet_id:
                     ltv_data["NetworkInterfaces"][0]["SubnetId"] = new_subnet_id
                     lt_modified = True
 
@@ -208,7 +208,7 @@ def update_launch_templates(drs_df, mod_df, vol_dfs):
                         lt_modified = True
 
             if not pd.isnull(new_sg_ids):
-                old_sgs = ltv_data["NetworkInterfaces"][0]["Groups"]
+                old_sgs = ltv_data["NetworkInterfaces"][0].get("Groups", [])
                 old_sgs.sort()
                 sg_array_tmp = new_sg_ids.split(",")
                 sg_array = []

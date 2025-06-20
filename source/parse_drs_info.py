@@ -103,13 +103,16 @@ def get_drs_details(df, drs_client, ec2_client):
 
             instance_type = lt_data["InstanceType"]
 
-            subnet_id = lt_data["NetworkInterfaces"][0]["SubnetId"]
-            subnet = ec2_client.describe_subnets(SubnetIds=[subnet_id])
-            subnet_tags = subnet["Subnets"][0].get("Tags", [])
-            subnet_name = next(
-                (tag["Value"] for tag in subnet_tags if tag["Key"] == "Name"), subnet_id
-            )
-            sg_ids = lt_data["NetworkInterfaces"][0]["Groups"]
+            subnet_id = lt_data["NetworkInterfaces"][0].get("SubnetId", '')
+            if subnet_id != '':
+                subnet = ec2_client.describe_subnets(SubnetIds=[subnet_id])
+                subnet_tags = subnet["Subnets"][0].get("Tags", [])
+                subnet_name = next(
+                    (tag["Value"] for tag in subnet_tags if tag["Key"] == "Name"), subnet_id
+                )
+            else:
+                subnet_name = "N/A"
+            sg_ids = lt_data["NetworkInterfaces"][0].get("Groups", [])
             sg_names = []
             for sg_id in sg_ids:
                 sg = ec2_client.describe_security_groups(GroupIds=[sg_id])
