@@ -33,7 +33,7 @@ jobs:
 
       - name: Sync Repo to S3
         run: |
-          aws s3 sync source/ s3://${{ vars.S3_BUCKET }}/${{ github.event.repository.name }} \
+          aws s3 sync source/ s3://${{ env.S3_BUCKET }}/${{ github.event.repository.name }} \
             --delete \
             --exclude ".git/*" \
             --exclude ".github/*" \
