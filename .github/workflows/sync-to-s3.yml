@@ -11,8 +11,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  REGION: "eu-central-1"                    # Public ECR must use us-east-1
-  S3_BUCKET: "tcop-prod-github-repos"       # Public ECR alias (e.g., "mycompany")
+  REGION: "eu-central-1"
+  S3_BUCKET: "tcop-prod-github-repos"
 
 jobs:
   deploy:
